@@ -37,7 +37,17 @@ dot:
 loop_start:
     bge t1, a2, loop_end
     # TODO: Add your own implementation
+    srli    t0, t1, 2   # i*4
+    add     t2, a0, t0  # addr of v1[i]
+    add     t3, a1, t0  # addr of v2[i]
+    lw      t4, 0(t2)   # val of v1[i]
+    lw      t5, 0(t3)   # val of v2[i]
+    mul     t0, t4, t5  # mul v1[i], v2[i]
+    add     s1, s1, t0  # result += mul result
 
+    addi    t1, t1, 1
+    blt     t1, a2, dot_loop    # if (i<len(v)) run dot
+    mv      a0, s1
 loop_end:
     mv a0, t0
     jr ra

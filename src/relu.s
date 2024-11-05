@@ -29,7 +29,43 @@ relu:
 
 loop_start:
     # TODO: Add your own implementation
+    # Check outer loop condition
+    beq t1 s1 outer_loop_end
 
+    # Set inner loop index
+    li s4 0
+
+inner_loop_start:
+    # Check inner loop condition
+    beq s4 s2 inner_loop_end
+
+    # t0 = row index * len(row) + column index
+    mul t0 s2 t1 
+    add t0 t0 s4 
+    slli t0 t0 2
+
+    # Load matrix element
+    add t0 t0 s0
+    lw t6 0(t0)
+
+    # relu
+    bgt     t6, x0, notChange
+    li      t6, 0
+notChange:
+    sw      t6, 0(t0)
+
+    addi s4 s4 1
+    j inner_loop_start
+
+inner_loop_end:
+ 
+    addi t1 t1 1
+    j loop_start
+
+outer_loop_end:
+    # Epilogue
+
+    ret
 error:
     li a0, 36          
     j exit          
