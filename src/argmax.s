@@ -31,17 +31,20 @@ argmax:
     li t2, 1
 loop_start:
     # TODO: Add your own implementation
-    lw      t3, 0(t0)       # use t3 for store vector[i] 
-    ble     t3, t2  next_loop
-changeMax:                  # change max value
-    mv      t2, t3          
-    mv      a0, t1          # a0 record max value's index
-    
-next_loop:
-    addi    t0, t0, 4
-    addi    t1, t1, 1
-    blt     t1, a1, loop_start
-    
+    # t1: max val, t2, i for loop
+    lw t0, 0(a0)
+    ble t0, t1, skip_change
+    # change val
+    mv  t1, t0
+    mv  t6, t2
+    addi t6, t6, -1
+skip_change:
+    addi a0, a0, 4
+    addi t2, t2, 1
+    ble  t2, a1, loop_start
+    # loop end
+    mv   a0, t6
+    ret
 handle_error:
     li a0, 36
     j exit

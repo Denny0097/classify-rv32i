@@ -33,24 +33,37 @@ dot:
 
     li t0, 0            
     li t1, 0         
+    la t4, vector0
 
 loop_start:
     bge t1, a2, loop_end
     # TODO: Add your own implementation
-    srli    t0, t1, 2   # i*4
-    add     t2, a0, t0  # addr of v1[i]
-    add     t3, a1, t0  # addr of v2[i]
-    lw      t4, 0(t2)   # val of v1[i]
-    lw      t5, 0(t3)   # val of v2[i]
-    mul     t0, t4, t5  # mul v1[i], v2[i]
-    add     s1, s1, t0  # result += mul result
+    # t1: i for loop
+    lw  t2, 0(a0)
+    lw  t3, 0(a1)
+    # mul
+    mul t2, t2, t3
+    sw  t2, 0(t4)
 
-    addi    t1, t1, 1
-    blt     t1, a2, dot_loop    # if (i<len(v)) run dot
-    mv      a0, s1
+    bge a3, a4  a3_bigger
+a4_bigger:
+    add t0, t0, a3
+    bge t0, a2, loop_end
+    jal next_loop
+a3_bigger:
+    add t0, t0, a4
+    bge t0, a2, loop_end
+next_loop:
+    slli t2, a3, 2
+    add a0, a0, t2
+    slli t3, a4, 2
+    add a1, a1, t3
+    addi t1, t1, 1
+    addi t4, t4, 4
+    j   loop_start
 loop_end:
-    mv a0, t0
-    jr ra
+    la  a0, vector0
+    ret
 
 error_terminate:
     blt a2, t0, set_error_36
@@ -60,3 +73,7 @@ error_terminate:
 set_error_36:
     li a0, 36
     j exit
+
+
+    .data
+vector0: .word 0
