@@ -33,36 +33,38 @@ dot:
 
     li t0, 0            
     li t1, 0         
-    la t4, vector0
 
 loop_start:
     bge t1, a2, loop_end
     # TODO: Add your own implementation
-    # t1: i for loop
-    lw  t2, 0(a0)
-    lw  t3, 0(a1)
-    # mul
-    mul t2, t2, t3
-    sw  t2, 0(t4)
+    # t1: i for iterator, t0: return val
+    slli t4, a3, 2 # stride for v0 (bytes)
+    slli t5, a4, 2 # stride for v1 (bytes)
+    lw      t2, 0(a0)
+    lw      t3, 0(a1)
+    # mul     t6, t2, t3
+    addi    sp, sp, -16
+    sw      a0, 0(sp)
+    sw      a1, 4(sp)
+    sw      s9, 8(sp)
+    sw      ra, 12(sp)
+    mv      a0, t2
+    mv      a1, t3
+    jal     multiple
+    mv      t6, a0
+    lw      a0, 0(sp)
+    lw      a1, 4(sp)
+    lw      s9, 8(sp)
+    lw      ra, 12(sp)
+    addi    sp, sp, 16
 
-    bge a3, a4  a3_bigger
-a4_bigger:
-    add t0, t0, a3
-    bge t0, a2, loop_end
-    jal next_loop
-a3_bigger:
-    add t0, t0, a4
-    bge t0, a2, loop_end
-next_loop:
-    slli t2, a3, 2
-    add a0, a0, t2
-    slli t3, a4, 2
-    add a1, a1, t3
-    addi t1, t1, 1
-    addi t4, t4, 4
-    j   loop_start
+    add     t0, t0, t6
+    add     a0, a0, t4
+    add     a1, a1, t5
+    addi    t1, t1, 1
+    j       loop_start
 loop_end:
-    la  a0, vector0
+    mv      a0, t0
     ret
 
 error_terminate:
@@ -75,5 +77,15 @@ set_error_36:
     j exit
 
 
-    .data
-vector0: .word 0
+
+multiple:
+    # s9: return val
+    li      s9, 0
+mul_loop_start:
+    ble     a1, x0, mul_loop_end
+    add     s9, s9, a0
+    addi    a1, a1, -1
+    j       mul_loop_start
+mul_loop_end:
+    mv      a0, s9
+    ret
