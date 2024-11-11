@@ -62,19 +62,25 @@ write_matrix:
     bne a0, t0, fwrite_error
 
     # mul s4, s2, s3   # s4 = total elements
-    addi    sp, sp, -16
+    addi    sp, sp, -24
     sw      a0, 0(sp)
     sw      a1, 4(sp)
     sw      s9, 8(sp)
     sw      ra, 12(sp)
+    sw      t0, 16(sp)
+    sw      t1, 20(sp)
+    
     mv      a0, s2
     mv      a1, s3
     jal     multiple
     mv      s4, a0
     lw      a0, 0(sp)
+    lw      a1, 4(sp)
     lw      s9, 8(sp)
     lw      ra, 12(sp)
-    addi    sp, sp, 16
+    lw      t0, 16(sp)
+    lw      t1, 20(sp)
+    addi    sp, sp, 24
 
 
     # write matrix data to file
@@ -132,6 +138,21 @@ error_exit:
 multiple:
     # s9: return val
     li      s9, 0
+    xor     t0, a0, a1      # t0 will have sign bit set if signs differ
+    srai    t0, t0, 31      # Extract the sign bit to determine final sign
+    mv      t1, a0
+    mv      a0, a1
+    addi    sp, sp, -8
+    sw      ra, 0(sp)
+    jal     abs
+    mv      a1, a0
+    mv      a0, t1
+    jal     abs
+    lw      ra, 0(sp)
+    addi    sp, sp, 8
+    bne     t0, x0, mul_loop_start_2
+
+# positive
 mul_loop_start:
     ble     a1, x0, mul_loop_end
     add     s9, s9, a0
@@ -140,3 +161,18 @@ mul_loop_start:
 mul_loop_end:
     mv      a0, s9
     ret
+# negtive
+mul_loop_start_2:
+    ble     a1, x0, mul_loop_end_2
+    add     s9, s9, a0
+    addi    a1, a1, -1
+    j       mul_loop_start_2
+mul_loop_end_2:
+    sub     s9, x0, s9
+    mv      a0, s9
+    ret
+abs:
+	bge	a0, x0, is_positive
+	sub	a0, x0, a0
+is_positive:
+	ret
