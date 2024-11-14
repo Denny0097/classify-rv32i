@@ -33,7 +33,7 @@ dot:
 
     li t0, 0            
     li t1, 0         
-
+// a1 fix
 loop_start:
     bge t1, a2, loop_end
     # TODO: Add your own implementation
