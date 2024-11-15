@@ -116,8 +116,8 @@ inner_loop_start:
     
 inner_loop_end:
     # TODO: Add your own implementation
-    slli    t5, a2, 2
-    add     s3, s3, t5 # incrememtning the column on Matrix A
+    slli    t2, a2, 2
+    add     s3, s3, t2 # incrememtning the column on Matrix A
 
     addi    s0, s0, 1
     j outer_loop_start

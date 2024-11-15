@@ -31,17 +31,22 @@ dot:
     blt a3, t0, error_terminate   
     blt a4, t0, error_terminate  
 
-    li t0, 0            
-    li t1, 0         
-// a1 fix
+    addi    sp, sp, -12
+    sw      s8, 0(sp)
+    sw      s9, 4(sp)
+    li  t0, 0            
+    li  t1, 0      
+    mv  s8, a0
+    mv  s9, a1  
+
 loop_start:
     bge t1, a2, loop_end
     # TODO: Add your own implementation
     # t1: i for iterator, t0: return val
     slli t4, a3, 2 # stride for v0 (bytes)
     slli t5, a4, 2 # stride for v1 (bytes)
-    lw      t2, 0(a0)
-    lw      t3, 0(a1)
+    lw      t2, 0(s8)
+    lw      t3, 0(s9)
     # mul     t6, t2, t3
     addi    sp, sp, -24
     sw      a0, 0(sp)
@@ -64,12 +69,15 @@ loop_start:
     addi    sp, sp, 24
 
     add     t0, t0, t6
-    add     a0, a0, t4
-    add     a1, a1, t5
+    add     s8, s8, t4
+    add     s9, s9, t5
     addi    t1, t1, 1
     j       loop_start
 loop_end:
     mv      a0, t0
+    lw      s8, 0(sp)
+    lw      s9, 4(sp)
+    addi    sp, sp, 12
     ret
 
 error_terminate:
@@ -81,25 +89,31 @@ set_error_36:
     li a0, 36
     j exit
 
+# =======================================================
+#multiply function
+#Input 
+#        a0: multiplicand
+#        a1: multiplier
+#Output 
+#        a0: multiplication result
+# =======================================================
 
 
 multiple:
     # s9: return val
     li      s9, 0
-    li      t1, 0x10000000
-    and     t0, a0, t1
-    and     t1, a1, t1
-    or      t0, t0, t1
+    xor     t0, a0, a1      # t0 will have sign bit set if signs differ
+    srai    t0, t0, 31      # Extract the sign bit to determine final sign
     mv      t1, a0
     mv      a0, a1
-    addi    sp, sp, -4
-    sw      ra,0(sp)
+    addi    sp, sp, -8
+    sw      ra, 0(sp)
     jal     abs
     mv      a1, a0
     mv      a0, t1
     jal     abs
-    lw      ra,0(sp)
-    addi    sp, sp, 4
+    lw      ra, 0(sp)
+    addi    sp, sp, 8
     bne     t0, x0, mul_loop_start_2
 
 # positive
@@ -126,4 +140,6 @@ abs:
 	sub	a0, x0, a0
 is_positive:
 	ret
+
+
 

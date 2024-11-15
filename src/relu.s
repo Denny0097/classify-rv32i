@@ -23,6 +23,8 @@
 #   Result: [ 0, 0, 3,  0, 5]
 # ==============================================================================
 relu:
+    addi    sp, sp, -8
+    sw      a0, 0(sp)
     li t0, 1             
     blt a1, t0, error     
     li t1, 0             
@@ -36,6 +38,8 @@ next_loop:
     addi a0, a0, 4
     addi t1, t1, 1
     blt t1, a1, loop_start
+    lw      a0, 0(sp)
+    addi    sp, sp, 8
     ret
 error:
     li a0, 36          
