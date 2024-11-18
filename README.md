@@ -63,7 +63,6 @@ $$C[i][j]=dot(A[i],B[:,j])$$
 4. Classification:
 Call ``armax`` to find the index of the highest score.
 
-```
 
 ## Reference
 - [Assignment2: Complete Applications](https://hackmd.io/@sysprog/2024-arch-homework2)
